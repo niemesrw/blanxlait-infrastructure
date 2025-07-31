@@ -108,3 +108,71 @@ jobs:
         echo ""
         echo "CSS files:"
         find dist/ -name "*.css" -exec ls -lh {} \;
+
+  security-test:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        
+    - name: Install dependencies
+      working-directory: ./blanxlait-site
+      run: npm ci
+      
+    - name: Build the site
+      working-directory: ./blanxlait-site
+      run: npm run build
+      
+    - name: Install Playwright
+      working-directory: ./blanxlait-site
+      run: npx playwright install chromium --with-deps
+      
+    - name: Run security tests
+      working-directory: ./blanxlait-site
+      run: npm run test tests/security.spec.ts -- --project=chromium
+      env:
+        CI: true
+
+  deploy:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    needs: [test-and-build, performance-test, security-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        
+    - name: Install dependencies
+      working-directory: ./blanxlait-site
+      run: npm ci
+      
+    - name: Build the site
+      working-directory: ./blanxlait-site
+      run: npm run build
+      
+    - name: Install Firebase CLI
+      run: npm install -g firebase-tools
+      
+    - name: Deploy to Firebase Hosting
+      run: firebase deploy --only hosting --project blanxlait-infrastructure
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        
+    - name: Deploy Firestore Rules
+      run: firebase deploy --only firestore:rules --project blanxlait-infrastructure
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        
+    - name: Deployment Success
+      run: |
+        echo "🚀 Deployment completed successfully!"
+        echo "🌐 Website: https://blanxlait-infrastructure.web.app"
+        echo "🔒 Security rules updated"
