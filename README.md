@@ -1,8 +1,68 @@
-# Blanxlait Infrastructure
+# BLANXLAIT Infrastructure
 
-This repository manages the infrastructure and website for blanxlait.com using Firebase Hosting.
+🤖 **AI-Native Software Solutions for SMBs**
 
-## Project Structure
+This repository contains the complete infrastructure and website for BLANXLAIT, an AI-focused software company specializing in intelligent applications for small and medium businesses.
+
+## 🌐 Live Website
+- **Production**: [blanxlait.com](https://blanxlait.com)
+- **Hosting**: Firebase Hosting with custom domain
+- **Email Security**: Full SPF, DKIM, DMARC, MTA-STS implementation
+
+## 🚀 Tech Stack
+
+### Frontend
+- **React 18** with TypeScript
+- **Vite** for fast development and building
+- **Custom CSS** with responsive design
+- **Modern UI/UX** with blue/aquamarine gradient theme
+
+### Infrastructure
+- **Firebase Hosting** for static site deployment
+- **DNS Management** via Squarespace domain
+- **Email Security** with comprehensive MTA-STS policy
+- **GitHub Actions** for CI/CD (coming soon)
+
+### Design Features
+- ✅ Fully responsive (desktop, tablet, mobile)
+- ✅ AI-focused branding with gradient highlights
+- ✅ Interactive contact form
+- ✅ Smooth animations and hover effects
+- ✅ Professional typography with Inter font
+- ✅ SEO-optimized structure
+
+## 🛠️ Development
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Firebase CLI
+
+### Setup
+```bash
+# Clone the repository
+git clone https://github.com/niemesrw/blanxlait-infrastructure.git
+cd blanxlait-infrastructure
+
+# Install dependencies
+npm install
+cd blanxlait-site && npm install
+
+# Start development server
+npm run dev
+```
+
+### Build & Deploy
+```bash
+# Build for production
+cd blanxlait-site
+npm run build
+
+# Deploy to Firebase
+firebase deploy
+```
+
+## 📁 Project Structure
 
 ```
 ├── firebase.json          # Firebase configuration
