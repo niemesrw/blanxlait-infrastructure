@@ -1,14 +1,14 @@
-name: Automated Testing
+name: Comprehensive Testing
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  test:
-    timeout-minutes: 60
+  test-and-build:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -21,82 +21,90 @@ jobs:
       working-directory: ./blanxlait-site
       run: npm ci
       
-    - name: Install Playwright Browsers
-      working-directory: ./blanxlait-site
-      run: npx playwright install --with-deps
-      
-    - name: Run Playwright tests
-      working-directory: ./blanxlait-site
-      run: npm run test:ci
-      env:
-        CI: true
-      
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report
-        path: blanxlait-site/playwright-report/
-        retention-days: 30
-
-  accessibility-audit:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-        
-    - name: Install dependencies
-      working-directory: ./blanxlait-site
-      run: npm ci
-      
-    - name: Install Playwright Browsers
-      working-directory: ./blanxlait-site
-      run: npx playwright install --with-deps
-      
-    - name: Run Accessibility Tests
-      working-directory: ./blanxlait-site
-      run: npm run test:accessibility
-      
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: accessibility-report
-        path: blanxlait-site/playwright-report/
-        retention-days: 30
-
-  performance-audit:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-        
-    - name: Install dependencies
-      working-directory: ./blanxlait-site
-      run: npm ci
-      
-    - name: Install Playwright Browsers
-      working-directory: ./blanxlait-site
-      run: npx playwright install --with-deps
-      
-    - name: Run Performance Tests
-      working-directory: ./blanxlait-site
-      run: npm run test:performance
-      
-    - name: Build for production
+    - name: Build the site
       working-directory: ./blanxlait-site
       run: npm run build
       
-    - name: Audit bundle size
+    - name: Install Playwright
+      working-directory: ./blanxlait-site
+      run: npx playwright install chromium --with-deps
+      
+    - name: Run functionality tests
+      working-directory: ./blanxlait-site
+      run: npm run test:functionality -- --project=chromium
+      env:
+        CI: true
+        
+    - name: Run accessibility tests
+      working-directory: ./blanxlait-site
+      run: npm run test:accessibility -- --project=chromium
+      env:
+        CI: true
+        
+    - name: Run responsive design tests
+      working-directory: ./blanxlait-site
+      run: npm run test:responsive -- --project=chromium
+      env:
+        CI: true
+        
+    - name: Run SEO tests
+      working-directory: ./blanxlait-site
+      run: npm run test:seo -- --project=chromium
+      env:
+        CI: true
+        
+    - name: Run domain redirect tests
+      working-directory: ./blanxlait-site
+      run: npm run test tests/domain-redirect.spec.ts -- --project=chromium
+      env:
+        CI: true
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: blanxlait-site/playwright-report/
+        retention-days: 7
+
+  performance-test:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        
+    - name: Install dependencies
+      working-directory: ./blanxlait-site
+      run: npm ci
+      
+    - name: Build the site
+      working-directory: ./blanxlait-site
+      run: npm run build
+      
+    - name: Install Playwright
+      working-directory: ./blanxlait-site
+      run: npx playwright install chromium --with-deps
+      
+    - name: Run performance tests
+      working-directory: ./blanxlait-site
+      run: npm run test:performance -- --project=chromium
+      env:
+        CI: true
+        
+    - name: Bundle size analysis
       working-directory: ./blanxlait-site
       run: |
-        echo "Bundle size analysis:"
+        echo "📦 Bundle Size Analysis"
+        echo "======================="
         du -sh dist/
-        find dist/ -name "*.js" -exec ls -lh {} \;
+        echo ""
+        echo "JavaScript files:"
+        find dist/ -name "*.js" -exec ls -lh {} \; | sort -k5 -hr
+        echo ""
+        echo "CSS files:"
         find dist/ -name "*.css" -exec ls -lh {} \;
