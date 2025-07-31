@@ -1,0 +1,26 @@
+{
+  "name": "blanxlait-infrastructure",
+  "version": "1.0.0",
+  "description": "Infrastructure and website for blanxlait.com",
+  "scripts": {
+    "serve": "firebase serve",
+    "serve-local": "cd public && python3 -m http.server 8000",
+    "build": "cd blanxlait-site && npm run build",
+    "deploy": "npm run build && firebase deploy",
+    "dev": "cd blanxlait-site && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/niemesrw/blanxlait-infrastructure.git"
+  },
+  "keywords": [
+    "firebase",
+    "hosting",
+    "blanxlait"
+  ],
+  "author": "Ryan Niemes <ryan@blanxlait.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "firebase-tools": "12.9.1"
+  }
+}
