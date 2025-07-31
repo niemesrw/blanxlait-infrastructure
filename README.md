@@ -132,3 +132,4 @@ Future: GitHub Actions will handle automatic deployment on push to main.
 - [ ] Configure custom domain
 - [ ] Set up GitHub Actions for CI/CD
 - [ ] Add proper content
+# Testing deployment pipeline
