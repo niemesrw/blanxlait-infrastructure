@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import emailjs from '@emailjs/browser';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -7,11 +8,43 @@ const Contact: React.FC = () => {
     company: '',
     message: ''
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      // EmailJS configuration from environment variables
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error('EmailJS configuration missing. Please check your environment variables.');
+      }
+
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        company: formData.company,
+        message: formData.message,
+        to_email: 'hello@blanxlait.com',
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', company: '', message: '' });
+    } catch (error) {
+      console.error('Email sending failed:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -130,10 +163,23 @@ const Contact: React.FC = () => {
               
               <button
                 type="submit"
-                className="btn btn-primary form-submit"
+                disabled={isSubmitting}
+                className={`btn btn-primary form-submit ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Start Your AI Journey
+                {isSubmitting ? 'Sending...' : 'Start Your AI Journey'}
               </button>
+              
+              {submitStatus === 'success' && (
+                <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                  ✅ Thank you! Your message has been sent successfully. We'll get back to you within 24 hours.
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                  ❌ Sorry, there was an error sending your message. Please try again or email us directly at hello@blanxlait.com
+                </div>
+              )}
             </form>
           </div>
         </div>

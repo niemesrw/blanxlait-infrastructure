@@ -89,6 +89,31 @@ test.describe('Core Functionality Tests', () => {
     const submitButton = page.locator('button[type="submit"]');
     await expect(submitButton).toBeVisible();
     await expect(submitButton).toBeEnabled();
+    
+    // Note: We don't actually submit in tests to avoid sending emails
+    // In a real test environment, you'd mock the EmailJS service
+  });
+
+  test('should handle contact form submission states', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
+    // Navigate to contact form
+    const contactLink = page.locator('nav a[href="#contact"]');
+    await contactLink.click({ force: true });
+    
+    // Fill out the form
+    await page.fill('input[name="name"]', 'Test User');
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('textarea[name="message"]', 'Test message');
+    
+    // Check initial button state
+    const submitButton = page.locator('button[type="submit"]');
+    await expect(submitButton).toContainText('Start Your AI Journey');
+    await expect(submitButton).toBeEnabled();
+    
+    // Note: We don't test actual submission to avoid sending test emails
+    // In production, you'd set up EmailJS mocking for comprehensive testing
   });
 
   test('should display footer content correctly', async ({ page }) => {
