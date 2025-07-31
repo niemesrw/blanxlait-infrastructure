@@ -23,42 +23,39 @@ const Services: React.FC = () => {
   ];
 
   return (
-    <section id="services" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+    <section id="services" className="section section-bg">
+      <div className="container">
+        <div className="text-center">
+          <h2 className="section-title">
             Our 
-            <span className="bg-gradient-to-r from-ai-blue-600 to-ai-cyan-500 bg-clip-text text-transparent">
+            <span className="hero-highlight">
               {" "}AI Services
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="section-subtitle">
             We specialize in creating intelligent applications that leverage artificial intelligence 
             at their core, transforming how businesses operate.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="services-grid">
           {services.map((service, index) => (
             <div 
               key={index}
-              className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group"
+              className="service-card"
             >
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+              <div className="service-icon">
                 {service.icon}
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="service-title">
                 {service.title}
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="service-description">
                 {service.description}
               </p>
-              <ul className="space-y-2">
+              <ul className="service-features">
                 {service.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center text-gray-700">
-                    <div className="w-2 h-2 bg-ai-cyan-500 rounded-full mr-3"></div>
-                    {feature}
-                  </li>
+                  <li key={featureIndex}>{feature}</li>
                 ))}
               </ul>
             </div>
@@ -66,7 +63,7 @@ const Services: React.FC = () => {
         </div>
 
         <div className="text-center mt-16">
-          <button className="bg-gradient-to-r from-ai-blue-600 to-ai-cyan-500 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+          <button className="btn-primary btn-large">
             Explore All Services
           </button>
         </div>
