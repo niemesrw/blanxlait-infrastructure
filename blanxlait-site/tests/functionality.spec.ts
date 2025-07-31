@@ -111,13 +111,30 @@ test.describe('Core Functionality Tests', () => {
 
   test('should have working CTA buttons', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
-    // Check hero CTA buttons
+    // Test hero CTA buttons functionality
     const primaryCTA = page.locator('button:has-text("Start Your AI Journey")').first();
     const secondaryCTA = page.locator('button:has-text("Learn More")').first();
     
     await expect(primaryCTA).toBeVisible();
     await expect(secondaryCTA).toBeVisible();
+    
+    // Test "Start Your AI Journey" button scrolls to contact
+    await primaryCTA.click();
+    await expect(page.locator('#contact')).toBeInViewport();
+    
+    // Test "Learn More" button scrolls to about (start fresh)
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await secondaryCTA.click();
+    await expect(page.locator('#about')).toBeInViewport();
+    
+    // Test services "Explore All Services" button
+    const servicesButton = page.locator('button:has-text("Explore All Services")');
+    await expect(servicesButton).toBeVisible();
+    await servicesButton.click();
+    await expect(page.locator('#contact')).toBeInViewport();
     
     // Check Get Started button in header
     const headerCTA = page.locator('a:has-text("Get Started")');

@@ -1,6 +1,13 @@
 import React from 'react';
 
 const Services: React.FC = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const services = [
     {
       title: "AI-Native Applications",
@@ -63,7 +70,11 @@ const Services: React.FC = () => {
         </div>
 
         <div className="text-center mt-16">
-          <button className="btn-primary btn-large">
+          <button 
+            className="btn-primary btn-large"
+            onClick={() => scrollToSection('contact')}
+            aria-label="Contact us to explore all AI services"
+          >
             Explore All Services
           </button>
         </div>

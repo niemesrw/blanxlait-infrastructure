@@ -1,6 +1,13 @@
 import React from 'react';
 
 const Hero: React.FC = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="home" className="hero">
       {/* Background gradient */}
@@ -27,10 +34,18 @@ const Hero: React.FC = () => {
           </p>
           
           <div className="hero-buttons">
-            <button className="btn-primary btn-large">
+            <button 
+              className="btn-primary btn-large"
+              onClick={() => scrollToSection('contact')}
+              aria-label="Navigate to contact form to start your AI journey"
+            >
               Start Your AI Journey
             </button>
-            <button className="btn-secondary btn-large">
+            <button 
+              className="btn-secondary btn-large"
+              onClick={() => scrollToSection('about')}
+              aria-label="Learn more about BLANXLAIT"
+            >
               Learn More
             </button>
           </div>
