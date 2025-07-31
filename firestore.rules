@@ -2,17 +2,35 @@ rules_version='2'
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 8, 30);
+    // Contact form submissions - write-only for unauthenticated users
+    match /contact_forms/{document} {
+      // Allow anyone to submit contact forms, but not read them
+      allow create: if isValidContactForm(resource.data);
+      // Only authenticated admins can read contact forms
+      allow read: if false; // Disable for security - use Firebase Admin SDK server-side
     }
+    
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+  
+  // Validation function for contact form data
+  function isValidContactForm(data) {
+    return data.keys().hasAll(['to', 'message', 'formData']) &&
+           data.to is list &&
+           data.to.size() == 1 &&
+           data.to[0] == 'hello@blanxlait.com' &&
+           data.message.keys().hasAll(['subject', 'text', 'html']) &&
+           data.formData.keys().hasAll(['name', 'email', 'message', 'timestamp']) &&
+           data.formData.name is string &&
+           data.formData.name.size() <= 100 &&
+           data.formData.email is string &&
+           data.formData.email.size() <= 200 &&
+           data.formData.email.matches('.*@.*\\..*') &&
+           data.formData.message is string &&
+           data.formData.message.size() <= 2000 &&
+           data.formData.timestamp is timestamp;
   }
 }

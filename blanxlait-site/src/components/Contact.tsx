@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const Contact: React.FC = () => {
@@ -12,11 +12,94 @@ const Contact: React.FC = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [rateLimitError, setRateLimitError] = useState(false);
+
+  // Input validation and sanitization
+  const validateAndSanitizeInput = (data: typeof formData) => {
+    const errors: string[] = [];
+    
+    // Name validation
+    if (!data.name || data.name.trim().length < 2) {
+      errors.push('Name must be at least 2 characters');
+    }
+    if (data.name.length > 100) {
+      errors.push('Name must be less than 100 characters');
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+      errors.push('Please enter a valid email address');
+    }
+    if (data.email.length > 200) {
+      errors.push('Email must be less than 200 characters');
+    }
+    
+    // Message validation
+    if (!data.message || data.message.trim().length < 10) {
+      errors.push('Message must be at least 10 characters');
+    }
+    if (data.message.length > 2000) {
+      errors.push('Message must be less than 2000 characters');
+    }
+    
+    // Company validation (optional but limit length)
+    if (data.company && data.company.length > 100) {
+      errors.push('Company name must be less than 100 characters');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      sanitized: {
+        name: data.name.trim().replace(/[<>]/g, ''), // Basic XSS prevention
+        email: data.email.trim().toLowerCase(),
+        company: data.company.trim().replace(/[<>]/g, ''),
+        message: data.message.trim().replace(/[<>]/g, '')
+      }
+    };
+  };
+
+  // Simple rate limiting (client-side)
+  const checkRateLimit = () => {
+    const lastSubmission = localStorage.getItem('lastContactSubmission');
+    const now = Date.now();
+    
+    if (lastSubmission) {
+      const timeSinceLastSubmission = now - parseInt(lastSubmission);
+      const minInterval = 60000; // 1 minute minimum between submissions
+      
+      if (timeSinceLastSubmission < minInterval) {
+        setRateLimitError(true);
+        setTimeout(() => setRateLimitError(false), 5000);
+        return false;
+      }
+    }
+    
+    localStorage.setItem('lastContactSubmission', now.toString());
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setRateLimitError(false);
+
+    // Rate limiting check
+    if (!checkRateLimit()) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate and sanitize input
+    const validation = validateAndSanitizeInput(formData);
+    if (!validation.isValid) {
+      console.error('Validation errors:', validation.errors);
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       // Check if Firebase is properly configured
@@ -25,37 +108,37 @@ const Contact: React.FC = () => {
       
       if (!isFirebaseConfigured || !db) {
         // Fallback for demo/development mode
-        console.log('Form submitted:', formData);
+        console.log('Form submitted:', validation.sanitized);
         await new Promise(resolve => setTimeout(resolve, 1000));
         setSubmitStatus('success');
         setFormData({ name: '', email: '', company: '', message: '' });
         return;
       }
 
-      // Add document to Firestore - Firebase Extension will automatically send email
+      // Add document to Firestore with server timestamp
       await addDoc(collection(db, 'contact_forms'), {
         to: ['hello@blanxlait.com'],
         message: {
-          subject: `New AI Consultation Request from ${formData.name}`,
+          subject: `New AI Consultation Request from ${validation.sanitized.name}`,
           text: `New contact form submission from BLANXLAIT website:
 
-Name: ${formData.name}
-Email: ${formData.email}
-Company: ${formData.company}
+Name: ${validation.sanitized.name}
+Email: ${validation.sanitized.email}
+Company: ${validation.sanitized.company}
 
 Message:
-${formData.message}
+${validation.sanitized.message}
 
 ---
 This email was sent from the BLANXLAIT contact form.`,
           html: `
             <h2>New Contact Form Submission from BLANXLAIT</h2>
-            <p><strong>Name:</strong> ${formData.name}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Company:</strong> ${formData.company}</p>
+            <p><strong>Name:</strong> ${validation.sanitized.name}</p>
+            <p><strong>Email:</strong> ${validation.sanitized.email}</p>
+            <p><strong>Company:</strong> ${validation.sanitized.company}</p>
             <br>
             <p><strong>Message:</strong></p>
-            <p>${formData.message.replace(/\n/g, '<br>')}</p>
+            <p>${validation.sanitized.message.replace(/\n/g, '<br>')}</p>
             <br>
             <hr>
             <p><em>This email was sent from the BLANXLAIT contact form.</em></p>
@@ -63,11 +146,11 @@ This email was sent from the BLANXLAIT contact form.`,
         },
         // Store form data for record keeping
         formData: {
-          name: formData.name,
-          email: formData.email,
-          company: formData.company,
-          message: formData.message,
-          timestamp: new Date(),
+          name: validation.sanitized.name,
+          email: validation.sanitized.email,
+          company: validation.sanitized.company,
+          message: validation.sanitized.message,
+          timestamp: serverTimestamp(),
           userAgent: navigator.userAgent
         }
       });
@@ -213,6 +296,12 @@ This email was sent from the BLANXLAIT contact form.`,
               {submitStatus === 'error' && (
                 <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
                   ❌ Sorry, there was an error sending your message. Please try again or email us directly at hello@blanxlait.com
+                </div>
+              )}
+              
+              {rateLimitError && (
+                <div className="mt-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+                  ⏳ Please wait at least 1 minute between form submissions to prevent spam.
                 </div>
               )}
             </form>
