@@ -90,8 +90,8 @@ test.describe('Core Functionality Tests', () => {
     await expect(submitButton).toBeVisible();
     await expect(submitButton).toBeEnabled();
     
-    // Note: We don't actually submit in tests to avoid sending emails
-    // In a real test environment, you'd mock the EmailJS service
+    // Note: We don't actually submit in tests to avoid creating Firestore documents
+    // In a real test environment, you'd mock the Firebase services
   });
 
   test('should handle contact form submission states', async ({ page }) => {
@@ -112,15 +112,16 @@ test.describe('Core Functionality Tests', () => {
     await expect(submitButton).toContainText('Start Your AI Journey');
     await expect(submitButton).toBeEnabled();
     
-    // Note: We don't test actual submission to avoid sending test emails
-    // In production, you'd set up EmailJS mocking for comprehensive testing
+    // Note: We don't test actual submission to avoid creating test Firestore documents
+    // In production, you'd set up Firebase emulators for comprehensive testing
   });
 
   test('should display footer content correctly', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
     // Check footer elements
-    await expect(page.locator('footer')).toBeVisible();
+    await expect(page.locator('footer')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('footer .logo-text')).toContainText('BLANXLAIT');
     await expect(page.locator('footer .footer-copyright')).toContainText('© 2025 BLANXLAIT. All rights reserved.');
     

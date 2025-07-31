@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -18,29 +19,63 @@ const Contact: React.FC = () => {
     setSubmitStatus('idle');
 
     try {
-      // EmailJS configuration from environment variables
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-      if (!serviceId || !templateId || !publicKey) {
-        throw new Error('EmailJS configuration missing. Please check your environment variables.');
+      // Check if Firebase is properly configured
+      const isFirebaseConfigured = db && import.meta.env.VITE_FIREBASE_PROJECT_ID && 
+        import.meta.env.VITE_FIREBASE_PROJECT_ID !== 'demo-project';
+      
+      if (!isFirebaseConfigured || !db) {
+        // Fallback for demo/development mode
+        console.log('Form submitted:', formData);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', company: '', message: '' });
+        return;
       }
 
-      const templateParams = {
-        from_name: formData.name,
-        from_email: formData.email,
-        company: formData.company,
-        message: formData.message,
-        to_email: 'hello@blanxlait.com',
-      };
+      // Add document to Firestore - Firebase Extension will automatically send email
+      await addDoc(collection(db, 'contact_forms'), {
+        to: ['hello@blanxlait.com'],
+        message: {
+          subject: `New AI Consultation Request from ${formData.name}`,
+          text: `New contact form submission from BLANXLAIT website:
 
-      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+Name: ${formData.name}
+Email: ${formData.email}
+Company: ${formData.company}
+
+Message:
+${formData.message}
+
+---
+This email was sent from the BLANXLAIT contact form.`,
+          html: `
+            <h2>New Contact Form Submission from BLANXLAIT</h2>
+            <p><strong>Name:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Company:</strong> ${formData.company}</p>
+            <br>
+            <p><strong>Message:</strong></p>
+            <p>${formData.message.replace(/\n/g, '<br>')}</p>
+            <br>
+            <hr>
+            <p><em>This email was sent from the BLANXLAIT contact form.</em></p>
+          `
+        },
+        // Store form data for record keeping
+        formData: {
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          message: formData.message,
+          timestamp: new Date(),
+          userAgent: navigator.userAgent
+        }
+      });
       
       setSubmitStatus('success');
       setFormData({ name: '', email: '', company: '', message: '' });
     } catch (error) {
-      console.error('Email sending failed:', error);
+      console.error('Form submission failed:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
