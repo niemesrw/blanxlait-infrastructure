@@ -1,8 +1,21 @@
 import React from 'react';
 
-const Navigation: React.FC = () => {
+interface NavigationProps {
+  onNavigateHome?: () => void;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ onNavigateHome }) => {
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      window.location.hash = '';
+    }
+  };
+
   const navItems = [
-    { label: 'Home', href: '#home' },
+    { label: 'Home', href: '/', onClick: handleHomeClick },
     { label: 'Services', href: '#services' },
     { label: 'About', href: '#about' },
     { label: 'Contact', href: '#contact' },
@@ -15,6 +28,7 @@ const Navigation: React.FC = () => {
           key={item.label}
           href={item.href}
           className="nav-link"
+          onClick={item.onClick}
         >
           {item.label}
         </a>

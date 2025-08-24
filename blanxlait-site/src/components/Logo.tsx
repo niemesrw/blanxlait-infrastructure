@@ -1,8 +1,21 @@
 import React from 'react';
 
-const Logo: React.FC = () => {
+interface LogoProps {
+  onNavigateHome?: () => void;
+}
+
+const Logo: React.FC<LogoProps> = ({ onNavigateHome }) => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else {
+      window.location.hash = '';
+    }
+  };
+
   return (
-    <div className="logo">
+    <a href="/" onClick={handleClick} className="logo">
       <div className="logo-icon">
         <div className="logo-dot"></div>
       </div>
@@ -11,7 +24,7 @@ const Logo: React.FC = () => {
         <span className="logo-ai">AI</span>
         T
       </span>
-    </div>
+    </a>
   );
 };
 

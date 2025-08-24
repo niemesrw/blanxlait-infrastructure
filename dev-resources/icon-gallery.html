@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLANXLAIT Icon Collection</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            margin: 0;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #1e40af 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .icon-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .icon-preview {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 120px;
+        }
+        
+        .icon-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        
+        .icon-size {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #1e40af 0%, #06b6d4 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .animation-demo {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            text-align: left;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">BLANXLAIT Icon Collection</h1>
+        
+        <div class="grid">
+            <div class="icon-card">
+                <div class="icon-name">Static Icon</div>
+                <div class="icon-size">64x64 pixels</div>
+                <div class="icon-preview">
+                    <img src="icon-static.svg" alt="Static Icon" width="64" height="64">
+                </div>
+                <a href="icon-static.svg" download="blanxlait-icon-static.svg" class="download-btn">Download</a>
+            </div>
+            
+            <div class="icon-card">
+                <div class="icon-name">Animated Icon</div>
+                <div class="icon-size">64x64 pixels</div>
+                <div class="icon-preview">
+                    <img src="icon-animated.svg" alt="Animated Icon" width="64" height="64">
+                </div>
+                <a href="icon-animated.svg" download="blanxlait-icon-animated.svg" class="download-btn">Download</a>
+            </div>
+            
+            <div class="icon-card">
+                <div class="icon-name">Large Icon</div>
+                <div class="icon-size">128x128 pixels</div>
+                <div class="icon-preview">
+                    <img src="icon-large.svg" alt="Large Icon" width="128" height="128">
+                </div>
+                <a href="icon-large.svg" download="blanxlait-icon-large.svg" class="download-btn">Download</a>
+            </div>
+            
+            <div class="icon-card">
+                <div class="icon-name">White Background</div>
+                <div class="icon-size">128x128 pixels</div>
+                <div class="icon-preview">
+                    <img src="icon-white-bg.svg" alt="White Background Icon" width="128" height="128">
+                </div>
+                <a href="icon-white-bg.svg" download="blanxlait-icon-white-bg.svg" class="download-btn">Download</a>
+            </div>
+            
+            <div class="icon-card">
+                <div class="icon-name">Social Media</div>
+                <div class="icon-size">1024x1024 pixels</div>
+                <div class="icon-preview">
+                    <img src="icon-social.svg" alt="Social Media Icon" width="128" height="128">
+                </div>
+                <a href="icon-social.svg" download="blanxlait-icon-social.svg" class="download-btn">Download</a>
+            </div>
+            
+            <div class="icon-card">
+                <div class="icon-name">Favicon</div>
+                <div class="icon-size">32x32 pixels</div>
+                <div class="icon-preview">
+                    <img src="favicon.svg" alt="Favicon" width="64" height="64">
+                </div>
+                <a href="favicon.svg" download="blanxlait-favicon.svg" class="download-btn">Download</a>
+            </div>
+        </div>
+        
+        <div class="animation-demo">
+            <h2 style="color: #1e40af; margin-bottom: 1rem;">How to Recreate the Pulsing Animation</h2>
+            
+            <h3 style="color: #374151;">CSS Animation</h3>
+            <div class="code-block">
+.blanxlait-dot {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}</div>
+            
+            <h3 style="color: #374151;">SVG Animation (Built-in)</h3>
+            <div class="code-block">
+&lt;circle cx="46" cy="18" r="6" fill="#06b6d4"&gt;
+  &lt;animate 
+    attributeName="opacity" 
+    values="1;0.3;1" 
+    dur="2s" 
+    repeatCount="indefinite"/&gt;
+&lt;/circle&gt;</div>
+            
+            <p style="color: #6b7280; margin-top: 1rem;">
+                The animation makes the blue dot pulse by changing its opacity from 100% to 30% and back over 2 seconds, repeating infinitely.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

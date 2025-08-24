@@ -1,6 +1,29 @@
 import React from 'react';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigatePrivacy?: () => void;
+  onNavigateTerms?: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onNavigatePrivacy, onNavigateTerms }) => {
+  const handlePrivacyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onNavigatePrivacy) {
+      onNavigatePrivacy();
+    } else {
+      window.location.hash = 'privacy';
+    }
+  };
+
+  const handleTermsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onNavigateTerms) {
+      onNavigateTerms();
+    } else {
+      window.history.pushState({}, '', '/terms');
+    }
+  };
+
   return (
     <footer className="footer">
       <div className="container">
@@ -60,8 +83,8 @@ const Footer: React.FC = () => {
             © 2025 BLANXLAIT. All rights reserved.
           </p>
           <div className="footer-legal">
-            <a href="#" className="footer-link">Privacy Policy</a>
-            <a href="#" className="footer-link">Terms of Service</a>
+            <a href="/privacy" onClick={handlePrivacyClick} className="footer-link">Privacy Policy</a>
+            <a href="/terms" onClick={handleTermsClick} className="footer-link">Terms of Service</a>
           </div>
         </div>
       </div>

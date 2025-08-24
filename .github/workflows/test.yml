@@ -161,6 +161,16 @@ jobs:
     - name: Install Firebase CLI
       run: npm install -g firebase-tools
       
+    - name: Verify Firebase token
+      run: |
+        if [ -z "$FIREBASE_TOKEN" ]; then
+          echo "❌ FIREBASE_TOKEN secret not found"
+          exit 1
+        fi
+        echo "✅ Firebase token is configured"
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      
     - name: Deploy to Firebase Hosting
       run: firebase deploy --only hosting --project blanxlait-infrastructure
       env:
@@ -176,3 +186,7 @@ jobs:
         echo "🚀 Deployment completed successfully!"
         echo "🌐 Website: https://blanxlait-infrastructure.web.app"
         echo "🔒 Security rules updated"
+        echo "📊 Build info:"
+        echo "  - Commit: ${{ github.sha }}"
+        echo "  - Branch: ${{ github.ref_name }}"
+        echo "  - Actor: ${{ github.actor }}"
